@@ -1,53 +1,28 @@
-FROM python:3.12-slim
+# Use the official Microsoft Playwright image as the base
+# This image comes with all browser dependencies pre-installed
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
 
-# Install system dependencies for Playwright
-RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    ca-certificates \
-    fonts-liberation \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libdrm2 \
-    libgbm1 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    xdg-utils \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create a non-root user for Hugging Face Spaces
-RUN useradd -m -u 1000 user
-ENV HOME=/home/user
-WORKDIR $HOME/app
+# Set work directory
+WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers (must be done as root or with correct permissions)
+# Playwright browsers are already in the image, but we ensure the python wrapper is ready
+# We don't need 'playwright install-deps' here because the base image has them
 RUN playwright install chromium
-RUN playwright install-deps chromium
 
-# Copy application code with correct ownership
-COPY --chown=user . .
+# Copy application code
+COPY . .
 
-# Create instance directory and ensure user has access
-RUN mkdir -p instance && chown -R user:user instance
+# Create instance directory for SQLite and set permissions
+RUN mkdir -p instance && chmod 777 instance
 
-# Switch to non-root user
-USER user
-
-# Expose port 7860 (required by Hugging Face)
-EXPOSE 7860
+# Handle port (Railway provides PORT env var)
+# We default to 8080 or similar if needed, but the server handles dynamic port
+EXPOSE 8080
 
 # Default: start webhook server (which also starts admin panel)
-# Use environment variables to handle ports dynamically
+# Railway automatically maps the external port to whatever port the app listens on
 CMD ["python", "-m", "webhook.server"]
