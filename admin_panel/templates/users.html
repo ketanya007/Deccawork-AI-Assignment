@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Users — IT Admin Panel{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-people"></i> User Management</h1>
+    <a href="{{ url_for('create_user') }}" class="btn btn-primary" id="btn-create-user">
+        <i class="bi bi-person-plus"></i> Create New User
+    </a>
+</div>
+
+<!-- Search and Filters -->
+<div class="card stat-card mb-3">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('users_list') }}" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Search by name or email..."
+                       value="{{ search }}" id="search-input">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Status</label>
+                <select name="status" class="form-select" id="filter-status">
+                    <option value="">All Statuses</option>
+                    <option value="Active" {% if status_filter == 'Active' %}selected{% endif %}>Active</option>
+                    <option value="Inactive" {% if status_filter == 'Inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="Suspended" {% if status_filter == 'Suspended' %}selected{% endif %}>Suspended</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Department</label>
+                <select name="department" class="form-select" id="filter-department">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if dept_filter == dept %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-secondary w-100" id="btn-search">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card stat-card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0" id="users-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>License</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr id="user-row-{{ user.id }}">
+                    <td>
+                        <strong>{{ user.full_name }}</strong>
+                        {% if user.needs_password_reset %}
+                        <span class="badge bg-warning text-dark ms-1" title="Needs password reset">
+                            <i class="bi bi-key"></i>
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.department }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        {% if user.status == 'Active' %}
+                            <span class="badge badge-active">Active</span>
+                        {% elif user.status == 'Inactive' %}
+                            <span class="badge badge-inactive">Inactive</span>
+                        {% else %}
+                            <span class="badge badge-suspended">Suspended</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge bg-outline-secondary border">{{ user.license_type }}</span></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-outline-primary"
+                               title="Edit User" id="btn-edit-{{ user.id }}">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form method="POST" action="{{ url_for('reset_password', user_id=user.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-outline-warning" title="Reset Password"
+                                        id="btn-reset-{{ user.id }}">
+                                    <i class="bi bi-key"></i> Reset PW
+                                </button>
+                            </form>
+                            {% if user.status == 'Active' %}
+                            <form method="POST" action="{{ url_for('deactivate_user', user_id=user.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-outline-secondary" title="Deactivate"
+                                        id="btn-deactivate-{{ user.id }}">
+                                    <i class="bi bi-person-x"></i>
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="POST" action="{{ url_for('activate_user', user_id=user.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success" title="Activate"
+                                        id="btn-activate-{{ user.id }}">
+                                    <i class="bi bi-person-check"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="d-inline"
+                                  onsubmit="return confirm('Are you sure you want to delete {{ user.full_name }}?');">
+                                <button type="submit" class="btn btn-outline-danger" title="Delete User"
+                                        id="btn-delete-{{ user.id }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not users %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No users found</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer bg-white text-muted small">
+        Showing {{ users|length }} user(s)
+    </div>
+</div>
+{% endblock %}

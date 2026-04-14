@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  it-support-agent:
+    build: .
+    ports:
+      - "5000:5000"   # Admin Panel
+      - "5001:5001"   # Webhook API
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-super-secret-key-change-me}
+      - WEBHOOK_PORT=5001
+    volumes:
+      - db-data:/app/instance
+    restart: unless-stopped
+
+volumes:
+  db-data:

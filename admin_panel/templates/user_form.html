@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit User' if mode == 'edit' else 'Create User' }} — IT Admin Panel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        <i class="bi bi-{{ 'pencil' if mode == 'edit' else 'person-plus' }}"></i>
+        {{ 'Edit User' if mode == 'edit' else 'Create New User' }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card stat-card">
+            <div class="card-body">
+                <form method="POST" id="user-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name"
+                                   value="{{ user.first_name if mode == 'edit' else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name"
+                                   value="{{ user.last_name if mode == 'edit' else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   value="{{ user.email if mode == 'edit' else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department" name="department"
+                                   value="{{ user.department if mode == 'edit' else '' }}" required
+                                   list="dept-suggestions">
+                            <datalist id="dept-suggestions">
+                                <option value="Engineering">
+                                <option value="Marketing">
+                                <option value="Sales">
+                                <option value="Human Resources">
+                                <option value="Finance">
+                                <option value="Legal">
+                                <option value="Support">
+                                <option value="Design">
+                                <option value="Operations">
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="role" class="form-label">Role</label>
+                            <input type="text" class="form-control" id="role" name="role"
+                                   value="{{ user.role if mode == 'edit' else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="license_type" class="form-label">License Type</label>
+                            <select class="form-select" id="license_type" name="license_type">
+                                {% set current_license = user.license_type if mode == 'edit' else 'Basic' %}
+                                <option value="Basic" {% if current_license == 'Basic' %}selected{% endif %}>Basic</option>
+                                <option value="Pro" {% if current_license == 'Pro' %}selected{% endif %}>Pro</option>
+                                <option value="Enterprise" {% if current_license == 'Enterprise' %}selected{% endif %}>Enterprise</option>
+                            </select>
+                        </div>
+
+                        {% if mode == 'edit' %}
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="Active" {% if user.status == 'Active' %}selected{% endif %}>Active</option>
+                                <option value="Inactive" {% if user.status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                                <option value="Suspended" {% if user.status == 'Suspended' %}selected{% endif %}>Suspended</option>
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" id="btn-save-user">
+                            <i class="bi bi-check-lg"></i> {{ 'Save Changes' if mode == 'edit' else 'Create User' }}
+                        </button>
+                        <a href="{{ url_for('users_list') }}" class="btn btn-outline-secondary" id="btn-cancel">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs — IT Admin Panel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-journal-text"></i> Audit Logs</h1>
+</div>
+
+<div class="card stat-card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0" id="logs-table">
+            <thead>
+                <tr>
+                    <th style="width: 160px;">Timestamp</th>
+                    <th style="width: 140px;">Action</th>
+                    <th style="width: 200px;">Target User</th>
+                    <th>Details</th>
+                    <th style="width: 100px;">By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="text-muted small">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        {% if 'Created' in log.action %}
+                            <span class="badge bg-success">{{ log.action }}</span>
+                        {% elif 'Deleted' in log.action %}
+                            <span class="badge bg-danger">{{ log.action }}</span>
+                        {% elif 'Reset' in log.action %}
+                            <span class="badge bg-warning text-dark">{{ log.action }}</span>
+                        {% elif 'Deactivated' in log.action or 'Suspended' in log.action %}
+                            <span class="badge bg-secondary">{{ log.action }}</span>
+                        {% elif 'Updated' in log.action %}
+                            <span class="badge bg-primary">{{ log.action }}</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ log.action }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.target_user or '—' }}</td>
+                    <td class="small">{{ log.details or '—' }}</td>
+                    <td class="small text-muted">{{ log.performed_by }}</td>
+                </tr>
+                {% endfor %}
+                {% if not logs %}
+                <tr><td colspan="5" class="text-center text-muted py-3">No logs found</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer bg-white text-muted small">
+        Total: {{ logs|length }} log entries
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — IT Admin Panel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Total Users</div>
+                        <div class="stat-number text-primary" id="stat-total-users">{{ total_users }}</div>
+                    </div>
+                    <i class="bi bi-people fs-1 text-primary opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Active Users</div>
+                        <div class="stat-number text-success" id="stat-active-users">{{ active_users }}</div>
+                    </div>
+                    <i class="bi bi-person-check fs-1 text-success opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Inactive / Suspended</div>
+                        <div class="stat-number text-warning" id="stat-inactive-users">{{ inactive_users + suspended_users }}</div>
+                    </div>
+                    <i class="bi bi-person-x fs-1 text-warning opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Pending Resets</div>
+                        <div class="stat-number text-danger" id="stat-pending-resets">{{ pending_resets }}</div>
+                    </div>
+                    <i class="bi bi-key fs-1 text-danger opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card stat-card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Activity</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0" id="recent-activity-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Action</th>
+                    <th>Target User</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_logs %}
+                <tr>
+                    <td class="text-muted small">{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><span class="badge bg-info">{{ log.action }}</span></td>
+                    <td>{{ log.target_user or '—' }}</td>
+                    <td class="small">{{ log.details or '—' }}</td>
+                </tr>
+                {% endfor %}
+                {% if not recent_logs %}
+                <tr><td colspan="4" class="text-center text-muted py-3">No recent activity</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
