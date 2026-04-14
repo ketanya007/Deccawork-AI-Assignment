@@ -1,6 +1,6 @@
-# Use the official Microsoft Playwright image as the base
-# This image comes with all browser dependencies pre-installed
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+# Use the official Microsoft Playwright image based on Ubuntu Noble (24.04)
+# This provides Python 3.12, which is required by browser-use
+FROM mcr.microsoft.com/playwright/python:v1.45.0-noble
 
 # Set work directory
 WORKDIR /app
