@@ -1,6 +1,12 @@
-# Use the official Microsoft Playwright image based on Ubuntu Noble (24.04)
-# This provides Python 3.12, which is required by browser-use
-FROM mcr.microsoft.com/playwright/python:v1.45.0-noble
+# Use a guaranteed Python 3.12 base image
+FROM python:3.12-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
 WORKDIR /app
@@ -9,9 +15,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright browsers are already in the image, but we ensure the python wrapper is ready
-# We don't need 'playwright install-deps' here because the base image has them
-RUN playwright install chromium
+# Install Playwright and its system dependencies for Chromium
+RUN playwright install --with-deps chromium
 
 # Copy application code
 COPY . .
@@ -20,9 +25,7 @@ COPY . .
 RUN mkdir -p instance && chmod 777 instance
 
 # Handle port (Railway provides PORT env var)
-# We default to 8080 or similar if needed, but the server handles dynamic port
 EXPOSE 8080
 
-# Default: start webhook server (which also starts admin panel)
-# Railway automatically maps the external port to whatever port the app listens on
+# Default: start webhook server
 CMD ["python", "-m", "webhook.server"]
