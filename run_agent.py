@@ -22,8 +22,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def start_admin_panel(port=5000):
+def start_admin_panel(port=None):
     """Start the Flask admin panel in a background thread."""
+    if port is None:
+        port = int(os.getenv('ADMIN_PORT', 5002))
+    
     from admin_panel.app import create_app
     app = create_app()
 
@@ -51,7 +54,8 @@ def start_admin_panel(port=5000):
 async def run_task(task: str, headless: bool = False):
     """Run a single IT support task."""
     from agent.it_agent import ITSupportAgent
-    agent = ITSupportAgent(admin_url="http://localhost:5000", headless=headless)
+    admin_port = os.getenv('ADMIN_PORT', 5002)
+    agent = ITSupportAgent(admin_url=f"http://localhost:{admin_port}", headless=headless)
     result = await agent.execute_task(task)
     return result
 
@@ -59,7 +63,8 @@ async def run_task(task: str, headless: bool = False):
 async def interactive_mode(headless: bool = False):
     """Interactive mode: continuously accept and execute tasks."""
     from agent.it_agent import ITSupportAgent
-    agent = ITSupportAgent(admin_url="http://localhost:5000", headless=headless)
+    admin_port = os.getenv('ADMIN_PORT', 5002)
+    agent = ITSupportAgent(admin_url=f"http://localhost:{admin_port}", headless=headless)
 
     print("\n" + "=" * 60)
     print("🤖 IT Support Agent — Interactive Mode")
@@ -93,7 +98,8 @@ async def interactive_mode(headless: bool = False):
 async def demo_mode(headless: bool = False):
     """Run demo with predefined tasks to showcase capabilities."""
     from agent.it_agent import ITSupportAgent
-    agent = ITSupportAgent(admin_url="http://localhost:5000", headless=headless)
+    admin_port = os.getenv('ADMIN_PORT', 5002)
+    agent = ITSupportAgent(admin_url=f"http://localhost:{admin_port}", headless=headless)
 
     demo_tasks = [
         # Task 1: Create a new user
@@ -160,8 +166,8 @@ Examples:
                         help='Run browser in headless mode (no visible window)')
     parser.add_argument('--panel-only', action='store_true',
                         help='Only start the admin panel (no agent)')
-    parser.add_argument('--port', type=int, default=5000,
-                        help='Port for the admin panel (default: 5000)')
+    parser.add_argument('--port', type=int, default=None,
+                        help='Port for the admin panel (default: 5002)')
 
     args = parser.parse_args()
 

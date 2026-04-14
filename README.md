@@ -1,3 +1,12 @@
+---
+title: AI IT Support Agent
+emoji: 🤖
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
+
 # 🤖 AI IT Support Agent
 
 An AI agent that takes **natural-language IT support requests** (like "reset password for john@company.com" or "create a new user") and carries them out automatically on a mock IT admin panel using **browser automation** — no direct DOM selectors or API shortcuts.
@@ -32,7 +41,7 @@ The agent completing two IT tasks end-to-end:
 │            ┌─────────────────────┐                          │
 │            │   IT Support Agent  │                          │
 │            │  (browser-use +     │                          │
-│            │   Gemini 3.1 Pro)    │                          │
+│            │   Gemini 2.0 Flash) │                          │
 │            └──────────┬──────────┘                          │
 │                       │ Browser Automation                  │
 │                       │ (Playwright)                        │
@@ -68,7 +77,7 @@ Before submitting your assignment, don't forget to:
 
 ### Prerequisites
 - Python >= 3.11
-- OpenAI API key ([get one here](https://platform.openai.com/api-keys))
+- Gemini API key ([get one here](https://aistudio.google.com/app/apikey))
 
 ### Setup
 
@@ -90,7 +99,7 @@ playwright install chromium
 
 # 5. Set your API key
 copy .env.example .env
-# Edit .env and set OPENAI_API_KEY=your-key-here
+# Edit .env and set GOOGLE_API_KEY=your-key-here
 ```
 
 ### Usage
@@ -166,7 +175,7 @@ docker-compose up --build
 
 # Or build manually
 docker build -t it-support-agent .
-docker run -p 5000:5000 -p 5001:5001 -e OPENAI_API_KEY=your-key it-support-agent
+docker run -p 5000:5000 -p 5001:5001 -e GOOGLE_API_KEY=your-key it-support-agent
 ```
 
 ---

@@ -37,7 +37,7 @@ webhook_app = Flask(__name__)
 task_history = []
 
 
-def start_admin_panel(port=5000):
+def start_admin_panel(port=5002):
     """Start the admin panel in a background thread."""
     from admin_panel.app import create_app
     app = create_app()
@@ -63,7 +63,8 @@ def run_agent_task(task: str, headless: bool = True) -> dict:
     from agent.it_agent import ITSupportAgent
 
     async def _run():
-        agent = ITSupportAgent(admin_url="http://localhost:5000", headless=headless)
+        admin_port = os.getenv('ADMIN_PORT', '5002')
+        agent = ITSupportAgent(admin_url=f"http://localhost:{admin_port}", headless=headless)
         return await agent.execute_task(task)
 
     loop = asyncio.new_event_loop()
@@ -187,14 +188,17 @@ def get_history():
 
 def main():
     """Start the webhook server along with the admin panel."""
-    print("🚀 Starting IT Admin Panel...")
-    if not start_admin_panel(5000):
+    admin_port = int(os.getenv('ADMIN_PORT', 5002))
+    webhook_port = int(os.getenv('PORT', os.getenv('WEBHOOK_PORT', 7860)))
+    
+    print(f"🚀 Starting IT Admin Panel on port {admin_port}...")
+    if not start_admin_panel(admin_port):
         print("❌ Failed to start admin panel")
         sys.exit(1)
-    print("✅ Admin panel running at http://localhost:5000")
+    print(f"✅ Admin panel running at http://localhost:{admin_port}")
 
-    webhook_port = int(os.getenv('WEBHOOK_PORT', 5001))
     print(f"\n🔗 Webhook server starting on http://localhost:{webhook_port}")
+    print(f"   (Running on Hugging Face? Use port 7860)")
     print(f"   POST /webhook          — Direct HTTP trigger")
     print(f"   POST /webhook/slack    — Slack slash command")
     print(f"   GET  /webhook/health   — Health check")

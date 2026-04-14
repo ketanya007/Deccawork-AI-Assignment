@@ -23,7 +23,7 @@ class ITSupportAgent:
         self.admin_url = admin_url
         self.headless = headless
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-3.1-pro",
+            model="gemini-2.0-flash",
             temperature=0.0,
             google_api_key=os.getenv("GOOGLE_API_KEY")
         )

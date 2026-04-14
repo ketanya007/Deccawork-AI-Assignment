@@ -23,24 +23,31 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Create a non-root user for Hugging Face Spaces
+RUN useradd -m -u 1000 user
+ENV HOME=/home/user
+WORKDIR $HOME/app
 
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers
+# Install Playwright browsers (must be done as root or with correct permissions)
 RUN playwright install chromium
 RUN playwright install-deps chromium
 
-# Copy application code
-COPY . .
+# Copy application code with correct ownership
+COPY --chown=user . .
 
-# Create instance directory for SQLite
-RUN mkdir -p instance
+# Create instance directory and ensure user has access
+RUN mkdir -p instance && chown -R user:user instance
 
-# Expose ports: 5000 (admin panel), 5001 (webhook)
-EXPOSE 5000 5001
+# Switch to non-root user
+USER user
+
+# Expose port 7860 (required by Hugging Face)
+EXPOSE 7860
 
 # Default: start webhook server (which also starts admin panel)
+# Use environment variables to handle ports dynamically
 CMD ["python", "-m", "webhook.server"]
