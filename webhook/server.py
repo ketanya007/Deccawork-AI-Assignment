@@ -188,26 +188,15 @@ def get_history():
 
 def main():
     """Start the webhook server along with the admin panel."""
-    admin_port = int(os.getenv('ADMIN_PORT', 5002))
-    webhook_port = int(os.getenv('PORT', os.getenv('WEBHOOK_PORT', 7860)))
+    # Railway provides the PORT environment variable
+    admin_port = 5002
+    webhook_port = int(os.getenv('PORT', 8080))
     
-    print(f"🚀 Starting IT Admin Panel on port {admin_port}...")
+    print(f"🚀 Starting Admin Panel on internal port {admin_port}...")
     if not start_admin_panel(admin_port):
-        print("❌ Failed to start admin panel")
         sys.exit(1)
-    print(f"✅ Admin panel running at http://localhost:{admin_port}")
 
-    print(f"\n🔗 Webhook server starting on http://localhost:{webhook_port}")
-    print(f"   (Running on Hugging Face? Use port 7860)")
-    print(f"   POST /webhook          — Direct HTTP trigger")
-    print(f"   POST /webhook/slack    — Slack slash command")
-    print(f"   GET  /webhook/health   — Health check")
-    print(f"   GET  /webhook/history  — Task history")
-    print(f"\nExample:")
-    print(f'   curl -X POST http://localhost:{webhook_port}/webhook \\')
-    print(f'     -H "Content-Type: application/json" \\')
-    print(f'     -d \'{{"task": "Reset password for john.smith@company.com"}}\'')
-
+    print(f"🔗 Webhook server listening on 0.0.0.0:{webhook_port}")
     webhook_app.run(host='0.0.0.0', port=webhook_port, debug=False)
 
 
