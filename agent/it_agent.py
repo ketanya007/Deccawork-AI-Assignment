@@ -57,6 +57,11 @@ Report what you did and the outcome."""
         browser = Browser(
             config=BrowserConfig(
                 headless=self.headless,
+                args=[
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                ]
             )
         )
 
